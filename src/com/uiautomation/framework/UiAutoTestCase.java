@@ -9,6 +9,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.uiautomator.core.Configurator;
+import com.android.uiautomator.core.UiDevice;
 import com.android.uiautomator.core.UiObject;
 import com.android.uiautomator.core.UiObjectNotFoundException;
 import com.android.uiautomator.core.UiSelector;
@@ -80,7 +81,8 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
      */
     @Override
     protected void runTest() throws Throwable {
-
+    	String testMethodName = getClass().getName() + "." + getName();
+    	Log.v(mTag, "Begin to run " + testMethodName + ".");
         int retryTimes = 0;
         boolean firstTime = true;
         
@@ -117,22 +119,23 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
             try{
                 if(!firstTime){
                     for(int i = 0; i < 5; i++) pressKey("back");
+                    setUp();
                 }
                 firstTime = false;
                 super.runTest();
                 break;
             }catch (Throwable e){
-                screenshot(pngFile, 0.5f, 80);
                 if(retryTimes >= 1){
                     retryTimes--;
                     continue;
                 } else {
                     System.out.println("runTest() throws an exception");
+                    UiDevice.getInstance().takeScreenshot(new File(pngFile), 0.5f, 80);
                     throw e;
                 }
             }
         }
-
+        Log.v(mTag, testMethodName + " run finished.");
     }
     
     
