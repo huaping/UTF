@@ -128,13 +128,15 @@ public class TestEngine implements ITestEngine {
 
 	@Override
 	public boolean longClick(int x, int y) {
-		return UiDevice.getInstance().swipe(x, y, x + 1, y + 1, 100);
+		return UiDevice.getInstance().swipe(x, y, x , y , 300);
 	}
 
 	@Override
 	public boolean longClick(UiSelector uiSelector)
 			throws UiObjectNotFoundException {
-		return new UiObject(uiSelector).longClick();
+		//return new UiObject(uiSelector).longClick(); // this method doesn't work
+		UiObject obj = new UiObject(uiSelector);
+		return longClick(obj.getBounds().centerX(), obj.getBounds().centerY());
 	}
 
 	@Override
