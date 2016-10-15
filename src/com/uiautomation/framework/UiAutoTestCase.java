@@ -1054,5 +1054,12 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	public boolean exists(UiSelector obj) {
 		return te.exists(obj);
 	}
+	/**
+	 * Click uiseletor if it's available in timeout
+	 */
+	@Override
+	public boolean clickIfAvailable(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException{
+		return te.clickIfAvailable(uiSelector, timeout);
+	}
 
 }

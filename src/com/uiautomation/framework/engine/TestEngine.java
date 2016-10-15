@@ -744,5 +744,12 @@ public class TestEngine implements ITestEngine {
 	public boolean exists(UiSelector obj) {
 		return new UiObject(obj).exists();
 	}
-
+	
+	@Override
+	public boolean clickIfAvailable(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException{
+		if (waitForExists(uiSelector, timeout)) {
+			return click(uiSelector);
+		}
+		return false;
+	}
 }

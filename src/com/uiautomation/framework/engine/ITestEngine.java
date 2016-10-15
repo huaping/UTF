@@ -161,5 +161,6 @@ public interface ITestEngine {
 	
 	boolean exists(UiSelector obj);
 	
+	boolean clickIfAvailable(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException;
 	
 }
