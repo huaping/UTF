@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import android.graphics.Point;
@@ -23,6 +26,7 @@ import com.android.uiautomator.core.UiScrollable;
 import com.android.uiautomator.core.UiSelector;
 import com.uiautomation.framework.engine.watcher.ClickUiObjectWatcher;
 import com.uiautomation.framework.engine.watcher.PressKeysWatcher;
+import com.uiautomation.framework.utils.CmdResult;
 import com.uiautomation.framework.utils.Constant;
 
 public class TestEngine implements ITestEngine {
@@ -752,4 +756,48 @@ public class TestEngine implements ITestEngine {
 		}
 		return false;
 	}
+
+
+	@Override
+	public CmdResult runCommand(String cmd) {
+		CmdResult cmdResult = new CmdResult();
+		cmdResult.returnValue = 255;
+		cmdResult.outPuts = new ArrayList<String>();
+		try {
+			Runtime rt = Runtime.getRuntime();
+			Process proc = rt.exec(cmd);
+			InputStream fis = proc.getInputStream();
+			InputStreamReader isr = new InputStreamReader(fis);
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
+			while ((line = br.readLine()) != null)
+				cmdResult.outPuts.add(line);
+			cmdResult.returnValue = proc.waitFor();
+			return cmdResult;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return cmdResult;
+		}
+	}
+
+	@Override
+	public String runCmdAndVerify(String cmd, String strToVerify) {
+		try {
+			Process proc = Runtime.getRuntime().exec(cmd);
+			InputStream is = proc.getInputStream();
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				if (line.indexOf(strToVerify) != -1)
+					return line;
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
 }
