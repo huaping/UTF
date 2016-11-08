@@ -7,6 +7,7 @@ import android.os.RemoteException;
 import com.android.uiautomator.core.UiObject;
 import com.android.uiautomator.core.UiObjectNotFoundException;
 import com.android.uiautomator.core.UiSelector;
+import com.uiautomation.framework.utils.CmdResult;
 
 public interface ITestEngine {
 	
@@ -161,5 +162,10 @@ public interface ITestEngine {
 	
 	boolean exists(UiSelector obj);
 	
+	boolean clickIfAvailable(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException;
+	
+	CmdResult runCommand(String cmd);
+	
+	String  runCmdAndVerify(String cmd, String containString);
 	
 }

@@ -9,6 +9,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.uiautomator.core.Configurator;
+import com.android.uiautomator.core.UiDevice;
 import com.android.uiautomator.core.UiObject;
 import com.android.uiautomator.core.UiObjectNotFoundException;
 import com.android.uiautomator.core.UiSelector;
@@ -16,6 +17,7 @@ import com.android.uiautomator.testrunner.UiAutomatorTestCase;
 import com.uiautomation.framework.engine.DeviceInfo;
 import com.uiautomation.framework.engine.ITestEngine;
 import com.uiautomation.framework.engine.TestEngine;
+import com.uiautomation.framework.utils.CmdResult;
 import com.uiautomation.framework.utils.Constant;
 
 public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
@@ -80,7 +82,8 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
      */
     @Override
     protected void runTest() throws Throwable {
-
+    	String testMethodName = getClass().getName() + "." + getName();
+    	Log.v(mTag, "Begin to run " + testMethodName + ".");
         int retryTimes = 0;
         boolean firstTime = true;
         
@@ -117,22 +120,23 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
             try{
                 if(!firstTime){
                     for(int i = 0; i < 5; i++) pressKey("back");
+                    setUp();
                 }
                 firstTime = false;
                 super.runTest();
                 break;
             }catch (Throwable e){
-                screenshot(pngFile, 0.5f, 80);
                 if(retryTimes >= 1){
                     retryTimes--;
                     continue;
                 } else {
                     System.out.println("runTest() throws an exception");
+                    UiDevice.getInstance().takeScreenshot(new File(pngFile), 0.5f, 80);
                     throw e;
                 }
             }
         }
-
+        Log.v(mTag, testMethodName + " run finished.");
     }
     
     
@@ -1050,6 +1054,34 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	@Override
 	public boolean exists(UiSelector obj) {
 		return te.exists(obj);
+	}
+	/**
+	 * Click uiseletor if it's available in timeout
+	 */
+	@Override
+	public boolean clickIfAvailable(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException{
+		return te.clickIfAvailable(uiSelector, timeout);
+	}
+
+	/**
+	 * Run command under shell (adb shell
+	 * @param cmd  command string, like "am start -n com.android.settings/.Settings -W"
+	 * @return CmdResult,  return value and output of the command
+	 */
+	@Override
+	public CmdResult runCommand(String cmd) {
+		return te.runCommand(cmd);
+	}
+
+	/***
+	 *  Run command and verify string in outputs
+	 * @param cmd    -- command to run in adb shell
+	 * @param strToVerify  -- string to verify in outputs 
+	 * @return  true is to have the strToVerify in outpus, otherwise 
+	 */
+	@Override
+	public String runCmdAndVerify(String cmd, String strToVerify) {
+		return te.runCmdAndVerify(cmd, strToVerify);
 	}
 
 }
