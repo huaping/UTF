@@ -115,7 +115,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
         if(getParams().getString("retrytimes") != null){
             retryTimes = Integer.parseInt(getParams().getString("retrytimes"));
         }
-
+ 
         while(retryTimes >= 0){
             try{
                 if(!firstTime){
@@ -128,6 +128,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
             }catch (Throwable e){
                 if(retryTimes >= 1){
                     retryTimes--;
+                    System.out.println("fail...retrying...");
                     continue;
                 } else {
                     System.out.println("runTest() throws an exception");
@@ -1082,6 +1083,16 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	@Override
 	public String runCmdAndVerify(String cmd, String strToVerify) {
 		return te.runCmdAndVerify(cmd, strToVerify);
+	}
+	
+
+	/***
+	 * Open application with package name
+	 * @param pkgName   package name to be launched.
+	 */
+	@Override
+	public boolean openApplication(String pkgName) {
+		return te.openApplication(pkgName);
 	}
 
 }

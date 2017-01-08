@@ -231,18 +231,37 @@ public class TestEngine implements ITestEngine {
 
 	@Override
 	public int executeCmd(String cmdString) {
+		
 		Process proc = null;
 		int returncode = -1;
 		try {
 			proc = Runtime.getRuntime().exec(cmdString);
-			returncode = proc.waitFor();
-
+			// the following is to prevent subprocess locked
+			InputStream stderr = proc.getErrorStream();
+			InputStreamReader isr = new InputStreamReader(stderr);
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
+			while ((line = br.readLine()) != null)  {
+				Log.v(Constant.LOG_TAG, line);
+			}
+			synchronized (proc) {
+				try {
+					proc.wait(1000);
+				} catch (Exception e) {
+				}
+			}
+			returncode = proc.exitValue();
+			if (proc != null) {
+				proc.destroy();
+			}
 		} catch (Exception e) {
 			Log.e(Constant.LOG_TAG,
 					"Could not save because we were interrupted");
+			if (proc != null) {
+				proc.destroy();
+			}
 			e.printStackTrace();
 		}
-		proc.destroy();
 		return returncode;
 	}
 
@@ -773,6 +792,9 @@ public class TestEngine implements ITestEngine {
 			while ((line = br.readLine()) != null)
 				cmdResult.outPuts.add(line);
 			cmdResult.returnValue = proc.waitFor();
+			if (proc!=null) {
+				proc.destroy();
+			}
 			return cmdResult;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -798,6 +820,12 @@ public class TestEngine implements ITestEngine {
 			return null;
 		}
 
+	}
+
+	@Override
+	public boolean openApplication(String pkgName) {
+		String cmd = "am start -a android.intent.action.MAIN  -c android.intent.category.LAUNCHER " + pkgName;
+		return executeCmd(cmd) == 0;
 	}
 
 }

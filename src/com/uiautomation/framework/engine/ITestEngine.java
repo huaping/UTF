@@ -14,6 +14,8 @@ public interface ITestEngine {
 	DeviceInfo deviceInfo();
 	
 	boolean openApplication(String pkg, String cls);
+	
+	boolean openApplication(String pkgName);
 
 	boolean enterText(String text, UiSelector uiSelector) throws UiObjectNotFoundException;
 
