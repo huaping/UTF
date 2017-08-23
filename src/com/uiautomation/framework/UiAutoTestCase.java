@@ -23,11 +23,11 @@ import com.uiautomation.framework.utils.Constant;
 public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 
 	private ITestEngine te;
-	
+
 	private boolean mDebug = false;
-	
+
 	private String mTag;
-	
+
 	public UiAutoTestCase() {
 		this(Configurator.getInstance().getWaitForSelectorTimeout(),
 				Constant.LOG_TAG, false);
@@ -38,20 +38,20 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 		this.mTag = tag;
 		this.mDebug = debug;
 	}
-	
+
 	public void logMessage(String log) {
         if(mDebug){
             System.out.println(getName() + ": " + log);
         }
         Log.d(mTag, getName() + ": " + log);
     }
-	
+
 	@Override
     protected void setUp() throws Exception {
         logMessage("Case starting...");
         super.setUp();
     }
-	
+
 	private String getCurrentTime(){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String currentDateandTime = sdf.format(new Date());
@@ -64,7 +64,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
     @Override
     protected void tearDown() throws Exception {
         logMessage("Case end");
-        
+
         String fileName = getName() + "_" + getCurrentTime() + ".png";
         if (getParams().getString("screenshot") != null)
             if (getParams().getString("screenshot").contentEquals("1")) {
@@ -72,7 +72,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
             }
         super.tearDown();
     }
-    
+
     /**
      * Overide of runTest of testcase, to test try times a gain when failure
      * setUp and tearDown will don't run again after failure, so openApp should be in test
@@ -86,7 +86,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
     	Log.v(mTag, "Begin to run " + testMethodName + ".");
         int retryTimes = 0;
         boolean firstTime = true;
-        
+
 		String fileName = "/data/local/tmp/" + Constant.LOGS_PATH
 				+ File.separator + getName() + "_" + getCurrentTime();
 		String logFile = fileName + "_logcat.txt";
@@ -106,7 +106,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
             Log.e(mTag, "Unkown Exception, filename: " + logFile);
             e.printStackTrace();
         }
-        
+
         if(getParams().getString("logcat") == "true"){
         	final String command=String.format("logcat -d -v time -f %s *:V -s", logFile);
             Runtime.getRuntime().exec(command).waitFor();
@@ -115,7 +115,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
         if(getParams().getString("retrytimes") != null){
             retryTimes = Integer.parseInt(getParams().getString("retrytimes"));
         }
- 
+
         while(retryTimes >= 0){
             try{
                 if(!firstTime){
@@ -139,8 +139,8 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
         }
         Log.v(mTag, testMethodName + " run finished.");
     }
-    
-    
+
+
 	@Override
 	/**
      * Get the device info.
@@ -201,10 +201,10 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 			throws UiObjectNotFoundException {
 		return te.clickResourceIdMatches(id);
 	}
-	
+
 	/**
-     * Performs a click at resource id 
-     * 
+     * Performs a click at resource id
+     *
      * @param id of the target resource id .
      * @return true id successful else false
      * @throws com.android.uiautomator.core.UiObjectNotFoundException
@@ -214,10 +214,10 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	public boolean clickResourceId(String id) throws UiObjectNotFoundException {
 		return te.clickResourceId(id);
 	}
-	
-	
+
+
 	/**
-     * Performs a click at Class name 
+     * Performs a click at Class name
      *
      * @param clzName of the target
      * @param instance of the target on the screen
@@ -248,7 +248,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	/**
      * Performs a click at text contains
      *
-     * @param text is part of the target 
+     * @param text is part of the target
      * @return true id successful else false
      * @throws com.android.uiautomator.core.UiObjectNotFoundException
      *
@@ -285,7 +285,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	public boolean click(UiObject obj) throws UiObjectNotFoundException {
 		return te.click(obj);
 	}
-	
+
 	/**
      * Long clicks bottom and right corner of the UI element
      *
@@ -458,7 +458,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 			throws UiObjectNotFoundException {
 		return te.dragTo(from, to, steps);
 	}
-	
+
 	 /**
      * Performs a swipe from one coordinate to another using the number of steps to determine smoothness and speed. Each step execution is throttled to 5ms per step. So for a 100 steps, the swipe will take about 1/2 second to complete.
      *
@@ -524,7 +524,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
      */
 	@Override
 	public void freezeRotation(boolean freeze) throws RemoteException {
-		te.freezeRotation(freeze);		
+		te.freezeRotation(freeze);
 	}
 
 	 /**
@@ -591,7 +591,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	public boolean waitForWindowUpdate(String packageName, long timeout) {
 		return te.waitForWindowUpdate(packageName, timeout);
 	}
-	
+
 	/**
      * Waits a specified length of time for a view to become visible. This method waits until the view becomes visible on the display, or until the timeout has elapsed. You can use this method in situations where the content that you want to select is not immediately displayed.
      *
@@ -603,7 +603,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	public boolean waitForExists(UiSelector uiSelector, long timeout) {
 		return te.waitForExists(uiSelector, timeout);
 	}
-	
+
     /**
      * Waits a specified length of time for a view to become undetectable. This method waits until a view is no longer matchable, or until the timeout has elapsed. A view becomes undetectable when the UiSelector of the object is unable to find a match because the element has either changed its state or is no longer displayed. You can use this method when attempting to wait for some long operation to compete, such as downloading a large file or connecting to a remote server.
      *
@@ -616,7 +616,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 		return te.waitUntilGone(obj, timeout);
 	}
 
-	
+
 	/**
      * Performs a backwards fling action with the default number of fling steps (5). If the swipe direction is set to vertical, then the swipe will be performed from top to bottom. If the swipe direction is set to horizontal, then the swipes will be performed from left to right. Make sure to take into account devices configured with right-to-left languages like Arabic and Hebrew.
      * @param obj        the selector of the scrollable object
@@ -1018,7 +1018,7 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 		return te.childByDescription(collection, child, text, allowScrollSearch);
 	}
 
-	
+
 	/**
      * Searches for child UI element within the constraints of this UiSelector. It looks for any child matching the childPattern argument that has a child UI element anywhere within its sub hierarchy that is at the instance specified. The operation is performed only on the visible items and no scrolling is performed in this case.
      *
@@ -1077,14 +1077,14 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	/***
 	 *  Run command and verify string in outputs
 	 * @param cmd    -- command to run in adb shell
-	 * @param strToVerify  -- string to verify in outputs 
-	 * @return  true is to have the strToVerify in outpus, otherwise 
+	 * @param strToVerify  -- string to verify in outputs
+	 * @return  true is to have the strToVerify in outpus, otherwise
 	 */
 	@Override
 	public String runCmdAndVerify(String cmd, String strToVerify) {
 		return te.runCmdAndVerify(cmd, strToVerify);
 	}
-	
+
 
 	/***
 	 * Open application with package name
@@ -1093,6 +1093,39 @@ public class UiAutoTestCase extends UiAutomatorTestCase implements ITestEngine{
 	@Override
 	public boolean openApplication(String pkgName) {
 		return te.openApplication(pkgName);
+	}
+
+
+	/***
+	 * Wait UiObject of uiselector
+	 * @param uiSelector UiSelector to be wait
+	 * @timeout timout to be wait, in miliseconds
+	 * @return    UiObject  to be return object
+	 */
+	@Override
+	public UiObject waitObject(UiSelector uiSelector, long timeout) {
+		return te.waitObject(uiSelector, timeout);
+	}
+
+	/***
+	 * Long click coordinate with time
+	 * @param  x   coordinate x
+	 * @param  y   coordinate y
+	 * @param  time  timeout to wait to complete
+	 */
+	@Override
+	public boolean longClick(int x, int y, int time) {
+		return te.longClick(x, y, time);
+	}
+
+	@Override
+	public long getPixelsChecksum(int x, int y) throws Exception {
+		return te.getPixelsChecksum(x, y);
+	}
+
+	@Override
+	public int[] getCoordinatesWithPixelsChecksum(long checkSum) throws Exception {
+		return te.getCoordinatesWithPixelsChecksum(checkSum);
 	}
 
 }

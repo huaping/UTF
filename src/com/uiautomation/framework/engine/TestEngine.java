@@ -2,6 +2,8 @@ package com.uiautomation.framework.engine;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,10 +12,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Environment;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -32,14 +37,16 @@ import com.uiautomation.framework.utils.Constant;
 public class TestEngine implements ITestEngine {
 
 	final public static String STORAGE_PATH = "/data/local/tmp/";
-	
+
 	private final HashSet<String> watchers = new HashSet<String>();
+
+	private static final int DEVIATION = 10; // PIXEL DIVIATION
 
 	public TestEngine(long waitTimeout) {
 		Configurator.getInstance().setWaitForSelectorTimeout(waitTimeout);
 	}
-	
-	
+
+
 	@Override
 	public DeviceInfo deviceInfo() {
 		return DeviceInfo.getDeviceInfo();
@@ -231,7 +238,7 @@ public class TestEngine implements ITestEngine {
 
 	@Override
 	public int executeCmd(String cmdString) {
-		
+
 		Process proc = null;
 		int returncode = -1;
 		try {
@@ -767,7 +774,7 @@ public class TestEngine implements ITestEngine {
 	public boolean exists(UiSelector obj) {
 		return new UiObject(obj).exists();
 	}
-	
+
 	@Override
 	public boolean clickIfAvailable(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException{
 		if (waitForExists(uiSelector, timeout)) {
@@ -828,4 +835,107 @@ public class TestEngine implements ITestEngine {
 		return executeCmd(cmd) == 0;
 	}
 
+
+	@Override
+	public UiObject waitObject(UiSelector uiSelector, long timeout) {
+		UiObject object = new UiObject(uiSelector);
+		if (object.waitForExists(timeout)) {
+			return object;
+		}
+		return null;
+	}
+
+
+	@Override
+	public boolean longClick(int x, int y, int time) {
+		return UiDevice.getInstance().swipe(x, y, x , y , time/5);
+	}
+
+
+	private Bitmap getScreenShotBitmap() throws FileNotFoundException {
+		File file = new File("/sdcard/screenshot.png");
+		UiDevice.getInstance().takeScreenshot(file, 1.0f, 100);
+		SystemClock.sleep(3000);
+		FileInputStream fis = new FileInputStream("/sdcard/screenshot.png");
+		Bitmap bitmap  = BitmapFactory.decodeStream(fis);
+		return bitmap;
+	}
+
+	private int[] getPixels(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int[] pixels = new int[width * height];
+        bm.getPixels(pixels, 0, width, 0, 0, width, height);
+        return pixels;
+    }
+
+	@Override
+	public long getPixelsChecksum(int x, int y) throws Exception {
+		Bitmap bitmap = getScreenShotBitmap();
+		int width = bitmap.getWidth();
+        int[] pixels = this.getPixels(bitmap);
+        int index = y * width + x;
+        long sum = 0;
+        int from = index - DEVIATION - width;
+        int to = index + DEVIATION - width;
+        for (int i = from; i <= to; i++) {
+            sum += pixels[i];
+        }
+        from = from + width;
+        to = to + width;
+        for (int i = from; i <= to; i++) {
+            sum += pixels[i];
+        }
+        from = from + width;
+        to = to + width;
+        for (int i = from; i <= to; i++) {
+            sum += pixels[i];
+        }
+        return sum;
+	}
+
+	@Override
+	public int[] getCoordinatesWithPixelsChecksum(long checkSum) throws Exception {
+		Bitmap bm = this.getScreenShotBitmap();
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int[] pixels = this.getPixels(bm);
+        int x = 0;
+        int y = 0;
+        int index = DEVIATION + width;
+        int sum = 0;
+        for (y = 1; y < height - 1; y++) {
+            for (x = DEVIATION; x < width - DEVIATION; x++) {
+                sum = 0;
+                int from = index - DEVIATION - width;
+                int to = index + DEVIATION - width;
+                for (int i = from; i <= to; i++) {
+                    sum += pixels[i];
+                }
+                from = from + width;
+                to = to + width;
+                for (int i = from; i <= to; i++) {
+                    sum += pixels[i];
+                }
+                from = from + width;
+                to = to + width;
+                for (int i = from; i <= to; i++) {
+                    sum += pixels[i];
+                }
+                if (sum == checkSum) {
+                    Log.d(Constant.LOG_TAG, "FIND " + pixels + " x=" + x + ",y=" + y);
+                    return new int[] {
+                            x, y
+                    };
+                }
+                if (x == width - DEVIATION - 1) {
+                    index = index + 2 * DEVIATION;
+                }
+                index++;
+            }
+        }
+        return new int[] {
+                -1, -1
+        };
+	}
 }

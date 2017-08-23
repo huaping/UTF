@@ -10,11 +10,11 @@ import com.android.uiautomator.core.UiSelector;
 import com.uiautomation.framework.utils.CmdResult;
 
 public interface ITestEngine {
-	
+
 	DeviceInfo deviceInfo();
-	
+
 	boolean openApplication(String pkg, String cls);
-	
+
 	boolean openApplication(String pkgName);
 
 	boolean enterText(String text, UiSelector uiSelector) throws UiObjectNotFoundException;
@@ -50,7 +50,7 @@ public interface ITestEngine {
 	boolean openQuickSettings();
 
 	boolean pressKeyCode(int keyCode);
-	
+
 	boolean pressKeyCode(int keyCode, int metaState);
 
 	boolean pressKey(String key) throws RemoteException;
@@ -125,20 +125,20 @@ public interface ITestEngine {
 	boolean hasAnyWatcherTriggered();
 
 	void registerClickUiObjectWatcher(String name, UiSelector[] conditions, UiSelector target);
-	
+
 	void registerPressKeyskWatcher(String name, UiSelector[] conditions, String[] keys);
-	
+
 	void removeWatcher(String name);
 	void resetWatcherTriggers();
-	
+
 	void runWatchers();
-	
+
 	String[] getWatchers();
-	
+
 	String getText(UiSelector uiSelector) throws UiObjectNotFoundException;
-	
+
 	String getText(String resourceId) throws UiObjectNotFoundException;
-	
+
 
 	boolean clickAndWaitForNewWindow(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException;
 
@@ -161,13 +161,21 @@ public interface ITestEngine {
 			int instance) throws UiObjectNotFoundException;
 
 	UiObject getUiObject(UiSelector selector) throws UiObjectNotFoundException;
-	
+
 	boolean exists(UiSelector obj);
-	
+
 	boolean clickIfAvailable(UiSelector uiSelector, long timeout) throws UiObjectNotFoundException;
-	
+
 	CmdResult runCommand(String cmd);
-	
+
 	String  runCmdAndVerify(String cmd, String containString);
-	
+
+	UiObject waitObject(UiSelector uiSelector, long timeout);
+
+	boolean longClick(int x, int y, int time);
+
+	long getPixelsChecksum(int x, int y)  throws Exception;
+
+	int[] getCoordinatesWithPixelsChecksum(long checkSum) throws Exception;
+
 }
